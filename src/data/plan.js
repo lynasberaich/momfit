@@ -84,16 +84,16 @@ export const liftingPlan = {
       {
         title: 'Dumbbell',
         exercises: [
-          { name: 'RDLs', sets: 3, reps: 12 },
-          { name: 'Lateral Lunge', sets: 3, reps: 8 },
-          { name: 'Dumbbell Squats', sets: 3, reps: 10 },
+          { name: 'RDLs', sets: 3, reps: 12, videoUrl: 'https://www.youtube.com/watch?v=5WxMW-Fu5KU' },
+          { name: 'Lateral Lunge', sets: 3, reps: 8, videoUrl: 'https://www.youtube.com/watch?v=lrhTa-GqCPY' },
+          { name: 'Dumbbell Squats', sets: 3, reps: 10, videoUrl: 'https://www.youtube.com/watch?v=v_c67Omje48' },
         ],
       },
       {
         title: 'Machine',
         exercises: [
-          { name: 'Leg Extension', sets: 3, reps: 8 },
-          { name: 'Hip Abductor', sets: 3, reps: 8 },
+          { name: 'Leg Extension', sets: 3, reps: 8, videoUrl: 'https://www.youtube.com/watch?v=EE9z0z2dQMU' },
+          { name: 'Hip Abductor', sets: 3, reps: 8, videoUrl: 'https://www.youtube.com/watch?v=0PPaAG3-v6U' },
         ],
       },
     ],
@@ -105,16 +105,16 @@ export const liftingPlan = {
       {
         title: 'Dumbbell',
         exercises: [
-          { name: 'Bicep Curl', sets: 3, reps: 12 },
-          { name: 'Shoulder Press', sets: 3, reps: 10 },
-          { name: 'Front Raise / Lateral Raise', sets: 3, reps: 8 },
+          { name: 'Bicep Curl', sets: 3, reps: 12, videoUrl: 'https://www.youtube.com/watch?v=mebsnWJRasA' },
+          { name: 'Shoulder Press', sets: 3, reps: 10, videoUrl: 'https://www.youtube.com/watch?v=Did01dFR3Lk' },
+          { name: 'Front Raise / Lateral Raise', sets: 3, reps: 8, videoUrl: 'https://www.youtube.com/watch?v=6vdhFbacXms' },
         ],
       },
       {
         title: 'Machine',
         exercises: [
-          { name: 'Chest Press', sets: 3, reps: 12 },
-          { name: 'Lat Pulldown', sets: 3, reps: 12 },
+          { name: 'Chest Press', sets: 3, reps: 12, videoUrl: 'https://www.youtube.com/watch?v=G7I9zRCXKxY' },
+          { name: 'Lat Pulldown', sets: 3, reps: 12, videoUrl: 'https://www.youtube.com/watch?v=g-AJPkaqxSc' },
         ],
       },
     ],

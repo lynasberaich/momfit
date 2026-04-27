@@ -45,32 +45,50 @@ export default function LiftCard({ lift, number }) {
                   const isDone = done[key];
                   return (
                     <li key={key}>
-                      <button
-                        onClick={() => toggle(key)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200 group ${
+                      <div
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
                           isDone ? 'bg-ink/5' : 'hover:bg-ink/[0.03]'
                         }`}
                       >
-                        <span
-                          className={`flex-shrink-0 w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${
-                            isDone
-                              ? 'bg-ink border-ink'
-                              : 'border-ink/20 group-hover:border-ink/40'
-                          }`}
+                        <button
+                          onClick={() => toggle(key)}
+                          className="flex items-center gap-3 flex-1 text-left min-w-0"
                         >
-                          {isDone && (
-                            <svg className="w-3 h-3 text-cream" viewBox="0 0 12 12" fill="none">
-                              <path d="M2 6 L5 9 L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          )}
-                        </span>
-                        <span className={`flex-1 ${isDone ? 'line-through text-ink/40' : 'text-ink/85'}`}>
-                          {ex.name}
-                        </span>
+                          <span
+                            className={`flex-shrink-0 w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center ${
+                              isDone
+                                ? 'bg-ink border-ink'
+                                : 'border-ink/20 group-hover:border-ink/40'
+                            }`}
+                          >
+                            {isDone && (
+                              <svg className="w-3 h-3 text-cream" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6 L5 9 L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </span>
+                          <span className={`flex-1 ${isDone ? 'line-through text-ink/40' : 'text-ink/85'}`}>
+                            {ex.name}
+                          </span>
+                        </button>
                         <span className={`font-mono text-xs px-2 py-1 rounded ${accent.tab} ${isDone ? 'opacity-50' : ''}`}>
                           {ex.sets}×{ex.reps}
                         </span>
-                      </button>
+                        {ex.videoUrl && (
+                          <a
+                            href={ex.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex-shrink-0 text-ink/30 hover:text-red-500 transition-colors duration-200"
+                            title="Watch video"
+                          >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                          </a>
+                        )}
+                      </div>
                     </li>
                   );
                 })}
