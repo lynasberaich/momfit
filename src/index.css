@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply font-body bg-cream text-ink;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(168, 189, 151, 0.18) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(221, 154, 140, 0.15) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(244, 228, 193, 0.25) 0%, transparent 60%);
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .grid-paper {
+    background-image:
+      linear-gradient(rgba(42, 39, 35, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42, 39, 35, 0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .ink-shadow {
+    box-shadow:
+      0 1px 0 rgba(42, 39, 35, 0.04),
+      0 4px 12px rgba(42, 39, 35, 0.06),
+      0 16px 32px -12px rgba(42, 39, 35, 0.10);
+  }
+  .ink-shadow-lg {
+    box-shadow:
+      0 1px 0 rgba(42, 39, 35, 0.06),
+      0 8px 24px rgba(42, 39, 35, 0.08),
+      0 24px 48px -16px rgba(42, 39, 35, 0.14);
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes drawIn {
+  from { stroke-dashoffset: 200; }
+  to   { stroke-dashoffset: 0; }
+}
+.animate-fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
