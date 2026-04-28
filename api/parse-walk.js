@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 const PROMPT = `Extract walking/activity stats from this Apple Health screenshot.
 Return ONLY a JSON object with these exact fields (use null for anything not visible):
@@ -17,9 +17,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.OPENAI_API_KEY) {
     return res.status(500).json({
-      error: 'ANTHROPIC_API_KEY is not set. Add it to your Vercel environment variables.',
+      error: 'OPENAI_API_KEY is not set. Add it to your Vercel environment variables.',
     });
   }
 
@@ -29,18 +29,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    const message = await client.messages.create({
-      model: 'claude-3-5-haiku-20241022',
+    const response = await client.chat.completions.create({
+      model: 'gpt-4.1-nano',
       max_tokens: 512,
       messages: [
         {
           role: 'user',
           content: [
             {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: imageData },
+              type: 'image_url',
+              image_url: { url: `data:${mediaType};base64,${imageData}` },
             },
             { type: 'text', text: PROMPT },
           ],
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       ],
     });
 
-    const raw = message.content[0].text.trim();
+    const raw = response.choices[0].message.content.trim();
 
     let parsed;
     try {
