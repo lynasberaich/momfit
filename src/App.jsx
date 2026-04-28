@@ -3,10 +3,13 @@ import TodayCard from './components/TodayCard.jsx';
 import CalendarMonth from './components/CalendarMonth.jsx';
 import LiftCard from './components/LiftCard.jsx';
 import WeeklySummary from './components/WeeklySummary.jsx';
+import LogWalk from './components/LogWalk.jsx';
+import ActivityLog from './components/ActivityLog.jsx';
 import { liftingPlan } from './data/plan.js';
 
 export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [logRefresh, setLogRefresh] = useState(0);
 
   return (
     <div className="min-h-screen">
@@ -52,6 +55,16 @@ export default function App() {
 
         {/* Weekly summary */}
         <WeeklySummary selectedDate={selectedDate} />
+
+        {/* Walk Log */}
+        <section>
+          <div className="flex items-baseline gap-3 mb-6 flex-wrap">
+            <h2 className="font-display text-3xl text-ink">Walk Log</h2>
+            <span className="h-px flex-1 bg-ink/15 hidden sm:block" />
+            <LogWalk onSaved={() => setLogRefresh((r) => r + 1)} />
+          </div>
+          <ActivityLog refresh={logRefresh} />
+        </section>
 
         {/* Calendars: May & June */}
         <section>
