@@ -8,11 +8,11 @@ function fromDb(row) {
     distanceMiles: row.distance_miles,
     durationMinutes: row.duration_minutes,
     averagePaceMinPerMile: row.average_pace_min_per_mile,
-    steps: row.steps,
+    heartRate: row.heart_rate,
+    activeCalories: row.active_calories,
     loggedAt: row.logged_at,
   };
 }
-
 export async function getWalkLogs() {
   const { data, error } = await supabase
     .from('walk_logs')
@@ -30,7 +30,8 @@ export async function saveWalkLog(log) {
       distance_miles: log.distanceMiles ?? null,
       duration_minutes: log.durationMinutes ?? null,
       average_pace_min_per_mile: log.averagePaceMinPerMile ?? null,
-      steps: log.steps ?? null,
+      heart_rate: log.heartRate ?? null,
+      active_calories: log.activeCalories ?? null,
     })
     .select()
     .single();

@@ -1,13 +1,19 @@
 import OpenAI from 'openai';
 
 const PROMPT = `Extract walking/activity stats from this Apple Health screenshot.
+The workout time is in yellow at the top of the screenshot. Do not report back the elapsed time.
+The distance is in blue below the workout time. 
+The active calories are in bright pink to the right of the distance. Do not report back the total calories.
+The average pace is in light blue below the active calories.
+The average heartrate is in orange below the total calories.
 Return ONLY a JSON object with these exact fields (use null for anything not visible):
 {
   "date": "YYYY-MM-DD",
   "distanceMiles": 2.3,
   "durationMinutes": 45.5,
   "averagePaceMinPerMile": "19:45",
-  "steps": 4800
+  "heartRate": 130,
+  "activeCalories": 240
 }
 No markdown, no explanation — just the raw JSON object.`;
 

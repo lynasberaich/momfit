@@ -33,7 +33,8 @@ const EMPTY_DRAFT = {
   distanceMiles: '',
   durationMinutes: '',
   averagePaceMinPerMile: '',
-  steps: '',
+  heartRate: '',
+  activeCalories: '',
 };
 
 // Phases: idle | preview | loading | confirming | saving
@@ -74,7 +75,8 @@ export default function LogWalk({ onSaved }) {
         distanceMiles: json.distanceMiles != null ? String(json.distanceMiles) : '',
         durationMinutes: json.durationMinutes != null ? String(json.durationMinutes) : '',
         averagePaceMinPerMile: json.averagePaceMinPerMile ?? '',
-        steps: json.steps != null ? String(json.steps) : '',
+        heartRate: json.heartRate != null ? String(json.heartRate) : '',
+        activeCalories: json.activeCalories != null ? String(json.activeCalories) : '',
       });
       setPhase('confirming');
     } catch (err) {
@@ -97,7 +99,8 @@ export default function LogWalk({ onSaved }) {
         distanceMiles: draft.distanceMiles !== '' ? parseFloat(draft.distanceMiles) : null,
         durationMinutes: draft.durationMinutes !== '' ? parseFloat(draft.durationMinutes) : null,
         averagePaceMinPerMile: draft.averagePaceMinPerMile || null,
-        steps: draft.steps !== '' ? parseInt(draft.steps, 10) : null,
+        heartRate: draft.heartRate !== '' ? parseInt(draft.heartRate, 10) : null,
+        activeCalories: draft.activeCalories !== '' ? parseInt(draft.activeCalories, 10) : null,
       });
       reset();
       onSaved?.();
@@ -209,7 +212,8 @@ export default function LogWalk({ onSaved }) {
     { key: 'distanceMiles', label: 'Distance (miles)', placeholder: '2.3', type: 'number' },
     { key: 'durationMinutes', label: 'Duration (minutes)', placeholder: '42', type: 'number', hint: draft.durationMinutes ? formatDuration(parseFloat(draft.durationMinutes)) : null },
     { key: 'averagePaceMinPerMile', label: 'Avg Pace (min/mi)', placeholder: '18:30', type: 'text' },
-    { key: 'steps', label: 'Steps', placeholder: '4800', type: 'number' },
+    { key: 'heartRate', label: 'Avg Heart Rate (bpm)', placeholder: '134', type: 'number' },
+    { key: 'activeCalories', label: 'Active Calories', placeholder: '319', type: 'number' },
   ];
 
   return (

@@ -191,9 +191,14 @@ export default function ActivityLog({ refresh }) {
                       {log.averagePaceMinPerMile}/mi pace
                     </span>
                   )}
-                  {log.steps != null && (
+                  {log.heartRate != null && (
                     <span className="font-mono text-xs text-ink/45">
-                      {log.steps.toLocaleString()} steps
+                      {log.heartRate} bpm avg
+                    </span>
+                  )}
+                  {log.activeCalories != null && (
+                    <span className="font-mono text-xs text-ink/45">
+                      {log.activeCalories} cal
                     </span>
                   )}
                 </div>
