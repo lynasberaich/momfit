@@ -9,9 +9,15 @@ function formatDuration(minutes) {
   return s > 0 ? `${m}m ${s}s` : `${m}m`;
 }
 
-function parseLocalDate(isoStr) {
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatDateLabel(isoStr) {
+  if (!isoStr) return 'Unknown date';
   const [y, m, d] = isoStr.split('-').map(Number);
-  return new Date(y, m - 1, d);
+  // Use UTC to compute weekday so timezone can never shift the date
+  const utc = new Date(Date.UTC(y, m - 1, d));
+  return `${DAYS[utc.getUTCDay()]}, ${MONTHS[m - 1]} ${d}`;
 }
 
 export default function ActivityLog({ refresh }) {
@@ -129,13 +135,7 @@ export default function ActivityLog({ refresh }) {
               ? +(log.distanceMiles - planned).toFixed(2)
               : null;
 
-          const dateLabel = log.date
-            ? parseLocalDate(log.date).toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-              })
-            : 'Unknown date';
+          const dateLabel = formatDateLabel(log.date);
 
           return (
             <div
