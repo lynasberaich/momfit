@@ -1,11 +1,14 @@
 import OpenAI from 'openai';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 const PROMPT = `Extract walking/activity stats from this Apple Health screenshot.
 The workout time is in yellow at the top of the screenshot. Do not report back the elapsed time.
 The distance is in blue below the workout time. 
 The active calories are in bright pink to the right of the distance. Do not report back the total calories.
 The average pace is in light blue below the active calories.
 The average heartrate is in orange below the total calories.
+The current year is ${CURRENT_YEAR}. If the year is not visible in the screenshot, assume it is ${CURRENT_YEAR}.
 Return ONLY a JSON object with these exact fields (use null for anything not visible):
 {
   "date": "YYYY-MM-DD",
