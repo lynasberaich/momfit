@@ -146,7 +146,7 @@ export default function ActivityLog({ refresh }) {
                 {/* Date + diff badge */}
                 <div className="flex items-center gap-2 flex-wrap mb-2">
                   <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink/50">
-                    {dateLabel}
+                    {dateLabel} ({log.date})
                   </span>
                   {diff != null && (
                     <span
