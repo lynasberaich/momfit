@@ -1,7 +1,6 @@
 import { walkingPlan, isoDate } from '../data/plan.js';
 
-export default function WeeklySummary({ selectedDate }) {
-  // Find the Sunday of the week containing selectedDate
+export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick }) {
   const start = new Date(selectedDate);
   start.setDate(start.getDate() - start.getDay());
 
@@ -12,16 +11,21 @@ export default function WeeklySummary({ selectedDate }) {
     week.push(d);
   }
 
-  const totalMiles = week.reduce((sum, d) => {
+  const totalPlanned = week.reduce((sum, d) => {
     const e = walkingPlan[isoDate(d)];
     return sum + (e?.miles || 0);
   }, 0);
 
+  const totalLogged = week.reduce((sum, d) => {
+    const log = walkLogsByDate?.[isoDate(d)];
+    return sum + (log?.distanceMiles || 0);
+  }, 0);
+
   const walkDays = week.filter(d => walkingPlan[isoDate(d)]?.miles).length;
+  const loggedDays = week.filter(d => walkLogsByDate?.[isoDate(d)]).length;
 
   return (
     <section className="bg-ink text-cream rounded-2xl p-7 ink-shadow-lg relative overflow-hidden">
-      {/* Subtle decorative line drawing */}
       <svg
         className="absolute -bottom-4 -right-8 w-48 h-48 text-cream/[0.04] pointer-events-none"
         viewBox="0 0 100 100"
@@ -45,22 +49,39 @@ export default function WeeklySummary({ selectedDate }) {
         </div>
 
         <div className="grid grid-cols-2 gap-6 mb-6">
+          {/* Logged miles — primary if available */}
           <div>
-            <p className="font-display text-6xl font-light leading-none">
-              {totalMiles}
-              <span className="text-2xl text-cream/50 italic ml-2">mi</span>
-            </p>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mt-2">
-              Total Miles
-            </p>
+            {totalLogged > 0 ? (
+              <>
+                <p className="font-display text-6xl font-light leading-none">
+                  {totalLogged.toFixed(1)}
+                  <span className="text-2xl text-cream/50 italic ml-2">mi</span>
+                </p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mt-2">
+                  Walked · {totalPlanned} planned
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-display text-6xl font-light leading-none">
+                  {totalPlanned}
+                  <span className="text-2xl text-cream/50 italic ml-2">mi</span>
+                </p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mt-2">
+                  Planned
+                </p>
+              </>
+            )}
           </div>
+
+          {/* Walk days / logged days */}
           <div>
             <p className="font-display text-6xl font-light leading-none">
-              {walkDays}
+              {loggedDays > 0 ? loggedDays : walkDays}
               <span className="text-2xl text-cream/50 italic ml-2">/ 7</span>
             </p>
             <p className="font-mono text-[10px] uppercase tracking-widest text-cream/50 mt-2">
-              Walk Days
+              {loggedDays > 0 ? 'Logged' : 'Walk Days'}
             </p>
           </div>
         </div>
@@ -68,23 +89,36 @@ export default function WeeklySummary({ selectedDate }) {
         {/* Mini week strip */}
         <div className="grid grid-cols-7 gap-1.5">
           {week.map((d) => {
-            const e = walkingPlan[isoDate(d)];
-            const isSelected = isoDate(d) === isoDate(selectedDate);
+            const key = isoDate(d);
+            const e = walkingPlan[key];
+            const log = walkLogsByDate?.[key];
+            const isSelected = key === isoDate(selectedDate);
             const dayLetter = d.toLocaleDateString('en-US', { weekday: 'narrow' });
 
             let dotClass = 'w-full h-1 rounded-full ';
-            if (e?.rest) dotClass += 'bg-rose-300';
-            else if (e?.miles) dotClass += 'bg-sage-300';
+            if (log) dotClass += 'bg-sage-400';
+            else if (e?.rest) dotClass += 'bg-rose-300';
+            else if (e?.miles) dotClass += 'bg-cream/30';
             else dotClass += 'bg-cream/10';
 
+            const mileLabel = log
+              ? `${log.distanceMiles ?? '✓'}`
+              : e?.miles ? `${e.miles}` : e?.rest ? '—' : '';
+
             return (
-              <div key={isoDate(d)} className="text-center">
+              <div key={key} className="text-center">
                 <p className={`font-mono text-[10px] mb-1.5 ${isSelected ? 'text-cream' : 'text-cream/40'}`}>
                   {dayLetter}
                 </p>
-                <div className={dotClass} />
-                <p className="font-mono text-[9px] text-cream/40 mt-1.5 h-3">
-                  {e?.miles ? `${e.miles}` : e?.rest ? '—' : ''}
+                <button
+                  onClick={() => log && onLogClick?.(log)}
+                  className={`w-full ${log ? 'cursor-pointer' : 'cursor-default'}`}
+                  disabled={!log}
+                >
+                  <div className={dotClass} />
+                </button>
+                <p className={`font-mono text-[9px] mt-1.5 h-3 ${log ? 'text-sage-400' : 'text-cream/40'}`}>
+                  {mileLabel}
                 </p>
               </div>
             );

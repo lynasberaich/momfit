@@ -2,10 +2,9 @@ import { walkingPlan, isoDate } from '../data/plan.js';
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-export default function CalendarMonth({ year, month, selectedDate, onSelect, label }) {
-  // month is 0-indexed (0 = January)
+export default function CalendarMonth({ year, month, selectedDate, onSelect, label, walkLogsByDate, onLogClick }) {
   const firstOfMonth = new Date(year, month, 1);
-  const startWeekday = firstOfMonth.getDay(); // 0 = Sunday
+  const startWeekday = firstOfMonth.getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const cells = [];
@@ -48,6 +47,7 @@ export default function CalendarMonth({ year, month, selectedDate, onSelect, lab
           const date = new Date(year, month, day);
           const key = isoDate(date);
           const entry = walkingPlan[key];
+          const log = walkLogsByDate?.[key];
           const isToday = key === todayKey;
           const isSelected = key === selectedKey;
 
@@ -57,8 +57,11 @@ export default function CalendarMonth({ year, month, selectedDate, onSelect, lab
 
           if (isSelected) {
             cellClass += 'bg-ink text-cream ring-2 ring-ink ring-offset-2 ring-offset-cream scale-105 ';
-            labelClass += '';
             mileClass += 'text-cream/70';
+          } else if (log) {
+            // Logged walk — sage green fill
+            cellClass += 'bg-sage-200 hover:bg-sage-300 text-sage-900 hover:scale-105 ';
+            mileClass += 'text-sage-700';
           } else if (entry?.rest) {
             cellClass += 'bg-rose-50 hover:bg-rose-100 text-rose-500 hover:scale-105 ';
             mileClass += 'text-rose-400';
@@ -70,23 +73,42 @@ export default function CalendarMonth({ year, month, selectedDate, onSelect, lab
             mileClass += 'text-ink/30';
           }
 
+          function handleClick() {
+            onSelect(date);
+            if (log) onLogClick?.(log);
+          }
+
           return (
             <button
               key={key}
-              onClick={() => onSelect(date)}
+              onClick={handleClick}
               className={cellClass}
-              aria-label={`${monthName} ${day}`}
+              aria-label={`${monthName} ${day}${log ? ' — logged' : ''}`}
             >
               <span className={labelClass}>{day}</span>
-              {entry?.rest && <span className={mileClass}>rest</span>}
-              {entry?.miles && (
+
+              {/* Show logged actual miles if logged, otherwise planned */}
+              {log && log.distanceMiles != null && (
+                <span className={mileClass}>{log.distanceMiles}mi</span>
+              )}
+              {!log && entry?.rest && <span className={mileClass}>rest</span>}
+              {!log && entry?.miles && (
                 <span className={mileClass}>{entry.miles}mi</span>
               )}
+
               {isToday && !isSelected && (
                 <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-400" />
               )}
-              {entry?.intervals && !isSelected && (
+              {entry?.intervals && !isSelected && !log && (
                 <span className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-rose-300" />
+              )}
+              {/* Small check for logged days */}
+              {log && !isSelected && (
+                <span className="absolute top-0.5 right-0.5">
+                  <svg className="w-2.5 h-2.5 text-sage-600" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
               )}
             </button>
           );

@@ -1,15 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TodayCard from './components/TodayCard.jsx';
 import CalendarMonth from './components/CalendarMonth.jsx';
 import LiftCard from './components/LiftCard.jsx';
 import WeeklySummary from './components/WeeklySummary.jsx';
 import LogWalk from './components/LogWalk.jsx';
-import ActivityLog from './components/ActivityLog.jsx';
+import WalkDetailModal from './components/WalkDetailModal.jsx';
 import { liftingPlan } from './data/plan.js';
+import { getWalkLogs } from './data/walkLogs.js';
 
 export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [walkLogs, setWalkLogs] = useState([]);
+  const [selectedLog, setSelectedLog] = useState(null);
   const [logRefresh, setLogRefresh] = useState(0);
+
+  useEffect(() => {
+    getWalkLogs()
+      .then(setWalkLogs)
+      .catch(console.error);
+  }, [logRefresh]);
+
+  // Build O(1) lookup: { 'YYYY-MM-DD': logEntry }
+  const walkLogsByDate = {};
+  walkLogs.forEach((l) => { if (l.date) walkLogsByDate[l.date] = l; });
+
+  function handleLogSaved() {
+    setLogRefresh((r) => r + 1);
+  }
 
   return (
     <div className="min-h-screen">
@@ -26,25 +43,14 @@ export default function App() {
               <span className="italic text-sage-600">Repeat.</span>
             </h1>
           </div>
-          <div className="hidden md:block">
-            {/* Decorative hand-drawn arrow */}
-            <svg width="120" height="60" viewBox="0 0 120 60" fill="none" className="text-rose-300">
-              <path
-                d="M5 30 Q 30 5, 60 30 T 110 30"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <path
-                d="M100 22 L110 30 L100 38"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </svg>
+          <div className="flex items-center gap-4">
+            <LogWalk onSaved={handleLogSaved} />
+            <div className="hidden md:block">
+              <svg width="120" height="60" viewBox="0 0 120 60" fill="none" className="text-rose-300">
+                <path d="M5 30 Q 30 5, 60 30 T 110 30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+                <path d="M100 22 L110 30 L100 38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+              </svg>
+            </div>
           </div>
         </div>
       </header>
@@ -53,18 +59,12 @@ export default function App() {
         {/* Today's walk - hero */}
         <TodayCard selectedDate={selectedDate} />
 
-        {/* Weekly summary */}
-        <WeeklySummary selectedDate={selectedDate} />
-
-        {/* Walk Log */}
-        <section>
-          <div className="flex items-baseline gap-3 mb-6 flex-wrap">
-            <h2 className="font-display text-3xl text-ink">Walk Log</h2>
-            <span className="h-px flex-1 bg-ink/15 hidden sm:block" />
-            <LogWalk onSaved={() => setLogRefresh((r) => r + 1)} />
-          </div>
-          <ActivityLog refresh={logRefresh} />
-        </section>
+        {/* Weekly summary — now shows actual vs planned */}
+        <WeeklySummary
+          selectedDate={selectedDate}
+          walkLogsByDate={walkLogsByDate}
+          onLogClick={setSelectedLog}
+        />
 
         {/* Calendars: May & June */}
         <section>
@@ -79,7 +79,11 @@ export default function App() {
           {/* Legend */}
           <div className="flex flex-wrap items-center gap-5 mb-5 text-xs">
             <span className="flex items-center gap-2 text-ink/60">
-              <span className="w-3 h-3 rounded bg-sage-100 border border-sage-200" />
+              <span className="w-3 h-3 rounded bg-sage-200 border border-sage-300" />
+              Logged
+            </span>
+            <span className="flex items-center gap-2 text-ink/60">
+              <span className="w-3 h-3 rounded bg-sage-50 border border-sage-200" />
               Walk day
             </span>
             <span className="flex items-center gap-2 text-ink/60">
@@ -103,6 +107,8 @@ export default function App() {
               selectedDate={selectedDate}
               onSelect={setSelectedDate}
               label="Month 1"
+              walkLogsByDate={walkLogsByDate}
+              onLogClick={setSelectedLog}
             />
             <CalendarMonth
               year={2026}
@@ -110,6 +116,8 @@ export default function App() {
               selectedDate={selectedDate}
               onSelect={setSelectedDate}
               label="Month 2"
+              walkLogsByDate={walkLogsByDate}
+              onLogClick={setSelectedLog}
             />
           </div>
         </section>
@@ -123,7 +131,6 @@ export default function App() {
           <p className="text-ink/60 mb-6 italic font-display text-lg">
             Two lifts per week, whenever possible.
           </p>
-
           <div className="grid md:grid-cols-2 gap-5">
             <LiftCard lift={liftingPlan.liftOne} number="1" />
             <LiftCard lift={liftingPlan.liftTwo} number="2" />
@@ -141,6 +148,14 @@ export default function App() {
           </div>
         </footer>
       </main>
+
+      {/* Walk detail modal */}
+      {selectedLog && (
+        <WalkDetailModal
+          log={selectedLog}
+          onClose={() => setSelectedLog(null)}
+        />
+      )}
     </div>
   );
 }

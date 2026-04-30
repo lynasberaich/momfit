@@ -153,60 +153,7 @@ export default function LogWalk({ onSaved }) {
     );
   }
 
-  // ── Preview ───────────────────────────────────────────────────────────────
-  if (phase === 'preview') {
-    return (
-      <div className="bg-cream border border-ink/10 rounded-2xl p-5 space-y-4 ink-shadow animate-fade-up">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50">Screenshot ready</p>
-        <img
-          src={previewDataUrl}
-          alt="Health screenshot preview"
-          className="w-full max-h-64 object-contain rounded-xl border border-ink/10 bg-ink/[0.02]"
-        />
-        {error && (
-          <p className="font-mono text-xs text-rose-500 bg-rose-50 border border-rose-200 px-4 py-3 rounded-xl">
-            {error}
-          </p>
-        )}
-        <div className="flex gap-3">
-          <button
-            onClick={analyze}
-            className="flex-1 py-3 bg-sage-700 text-cream rounded-xl font-mono text-xs uppercase tracking-widest hover:bg-sage-600 transition-colors"
-          >
-            Read Stats
-          </button>
-          <button
-            onClick={reset}
-            className="px-5 py-3 border border-ink/20 text-ink/50 rounded-xl font-mono text-xs uppercase tracking-widest hover:border-ink/40 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Loading ───────────────────────────────────────────────────────────────
-  if (phase === 'loading') {
-    return (
-      <div className="bg-cream border border-ink/10 rounded-2xl p-10 flex flex-col items-center gap-4 ink-shadow">
-        <div className="w-7 h-7 border-2 border-sage-600 border-t-transparent rounded-full animate-spin" />
-        <p className="font-display italic text-ink/50 text-lg">Reading your screenshot…</p>
-      </div>
-    );
-  }
-
-  // ── Saving ────────────────────────────────────────────────────────────────
-  if (phase === 'saving') {
-    return (
-      <div className="bg-cream border border-ink/10 rounded-2xl p-10 flex flex-col items-center gap-4 ink-shadow">
-        <div className="w-7 h-7 border-2 border-sage-600 border-t-transparent rounded-full animate-spin" />
-        <p className="font-display italic text-ink/50 text-lg">Saving your walk…</p>
-      </div>
-    );
-  }
-
-  // ── Confirming ────────────────────────────────────────────────────────────
+  // ── All active phases render as a modal overlay ───────────────────────────
   const fields = [
     { key: 'date', label: 'Date', placeholder: 'YYYY-MM-DD', type: 'text' },
     { key: 'distanceMiles', label: 'Distance (miles)', placeholder: '2.3', type: 'number' },
@@ -216,48 +163,92 @@ export default function LogWalk({ onSaved }) {
     { key: 'activeCalories', label: 'Active Calories', placeholder: '319', type: 'number' },
   ];
 
+  let modalContent;
+
+  if (phase === 'preview') {
+    modalContent = (
+      <div className="space-y-4">
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50">Screenshot ready</p>
+        <img
+          src={previewDataUrl}
+          alt="Health screenshot preview"
+          className="w-full max-h-60 object-contain rounded-xl border border-ink/10 bg-ink/[0.02]"
+        />
+        {error && (
+          <p className="font-mono text-xs text-rose-500 bg-rose-50 border border-rose-200 px-4 py-3 rounded-xl">
+            {error}
+          </p>
+        )}
+        <div className="flex gap-3">
+          <button onClick={analyze} className="flex-1 py-3 bg-sage-700 text-cream rounded-xl font-mono text-xs uppercase tracking-widest hover:bg-sage-600 transition-colors">
+            Read Stats
+          </button>
+          <button onClick={reset} className="px-5 py-3 border border-ink/20 text-ink/50 rounded-xl font-mono text-xs uppercase tracking-widest hover:border-ink/40 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  } else if (phase === 'loading' || phase === 'saving') {
+    modalContent = (
+      <div className="flex flex-col items-center gap-4 py-6">
+        <div className="w-7 h-7 border-2 border-sage-600 border-t-transparent rounded-full animate-spin" />
+        <p className="font-display italic text-ink/50 text-lg">
+          {phase === 'loading' ? 'Reading your screenshot…' : 'Saving your walk…'}
+        </p>
+      </div>
+    );
+  } else if (phase === 'confirming') {
+    modalContent = (
+      <div className="space-y-4">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50 mb-1">
+            {previewDataUrl ? 'Stats extracted — review & save' : 'Enter walk stats'}
+          </p>
+          <p className="font-display italic text-ink/55 text-sm">Correct anything before saving.</p>
+        </div>
+        {error && (
+          <p className="font-mono text-xs text-rose-500 bg-rose-50 border border-rose-200 px-4 py-3 rounded-xl">
+            {error}
+          </p>
+        )}
+        <div className="space-y-2.5">
+          {fields.map(({ key, label, placeholder, type, hint }) => (
+            <label key={key} className="flex flex-col gap-1">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-ink/40">
+                {label}{hint ? ` · ${hint}` : ''}
+              </span>
+              <input
+                type={type}
+                value={draft[key]}
+                placeholder={placeholder}
+                step={type === 'number' ? 'any' : undefined}
+                onChange={set(key)}
+                className="bg-transparent border border-ink/20 rounded-xl px-4 py-2.5 font-mono text-sm text-ink placeholder-ink/25 focus:outline-none focus:border-sage-500 transition-colors"
+              />
+            </label>
+          ))}
+        </div>
+        <div className="flex gap-3 pt-1">
+          <button onClick={save} className="flex-1 py-3 bg-sage-700 text-cream rounded-xl font-mono text-xs uppercase tracking-widest hover:bg-sage-600 transition-colors">
+            Save Walk
+          </button>
+          <button onClick={reset} className="px-5 py-3 border border-ink/20 text-ink/50 rounded-xl font-mono text-xs uppercase tracking-widest hover:border-ink/40 transition-colors">
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-cream border border-ink/10 rounded-2xl p-5 space-y-5 ink-shadow animate-fade-up">
-      <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/50 mb-1">
-          {previewDataUrl ? 'Stats extracted — review & save' : 'Enter walk stats'}
-        </p>
-        <p className="font-display italic text-ink/55 text-sm">
-          Correct anything before saving.
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        {fields.map(({ key, label, placeholder, type, hint }) => (
-          <label key={key} className="flex flex-col gap-1">
-            <span className="font-mono text-[9px] uppercase tracking-widest text-ink/40">
-              {label}{hint ? ` · ${hint}` : ''}
-            </span>
-            <input
-              type={type}
-              value={draft[key]}
-              placeholder={placeholder}
-              step={type === 'number' ? 'any' : undefined}
-              onChange={set(key)}
-              className="bg-transparent border border-ink/20 rounded-xl px-4 py-2.5 font-mono text-sm text-ink placeholder-ink/25 focus:outline-none focus:border-sage-500 transition-colors"
-            />
-          </label>
-        ))}
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          onClick={save}
-          className="flex-1 py-3 bg-sage-700 text-cream rounded-xl font-mono text-xs uppercase tracking-widest hover:bg-sage-600 transition-colors"
-        >
-          Save Walk
-        </button>
-        <button
-          onClick={reset}
-          className="px-5 py-3 border border-ink/20 text-ink/50 rounded-xl font-mono text-xs uppercase tracking-widest hover:border-ink/40 transition-colors"
-        >
-          Cancel
-        </button>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+      <div
+        className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
+        onClick={phase === 'preview' || phase === 'confirming' ? reset : undefined}
+      />
+      <div className="relative bg-cream rounded-t-3xl sm:rounded-3xl p-6 w-full sm:max-w-sm mx-auto z-10 ink-shadow-lg animate-fade-up max-h-[90vh] overflow-y-auto">
+        {modalContent}
       </div>
     </div>
   );
