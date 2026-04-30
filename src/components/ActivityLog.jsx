@@ -10,7 +10,8 @@ function formatDuration(minutes) {
 }
 
 function parseLocalDate(isoStr) {
-  return new Date(isoStr + 'T12:00:00');
+  const [y, m, d] = isoStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
 
 export default function ActivityLog({ refresh }) {
