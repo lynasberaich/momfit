@@ -95,7 +95,7 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
             const isSelected = key === isoDate(selectedDate);
             const dayLetter = d.toLocaleDateString('en-US', { weekday: 'narrow' });
 
-            let dotClass = 'w-full h-1 rounded-full ';
+            let dotClass = 'w-full h-2 rounded-full ';
             if (log) dotClass += 'bg-sage-400';
             else if (e?.rest) dotClass += 'bg-rose-300';
             else if (e?.miles) dotClass += 'bg-cream/30';
@@ -107,7 +107,7 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
 
             return (
               <div key={key} className="text-center">
-                <p className={`font-mono text-[10px] mb-1.5 ${isSelected ? 'text-cream' : 'text-cream/40'}`}>
+                <p className={`font-mono text-[12px] mb-1.5 ${isSelected ? 'text-cream' : 'text-cream/40'}`}>
                   {dayLetter}
                 </p>
                 <button
@@ -117,7 +117,7 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
                 >
                   <div className={dotClass} />
                 </button>
-                <p className={`font-mono text-[9px] mt-1.5 h-3 ${log ? 'text-sage-400' : 'text-cream/40'}`}>
+                <p className={`font-mono text-[10px] mt-1.5 h-3 ${log ? 'text-sage-400' : 'text-cream/40'}`}>
                   {mileLabel}
                 </p>
               </div>
