@@ -33,6 +33,7 @@ const METRICS = [
     color: '#86efac',
     getValue: (log) => log?.distanceMiles ?? null,
     display: (v) => `${v} mi`,
+    short: (v) => String(v),
   },
   {
     key: 'pace',
@@ -40,7 +41,7 @@ const METRICS = [
     color: '#fca5a5',
     getValue: (log) => (log?.averagePaceMinPerMile ? parsePace(log.averagePaceMinPerMile) : null),
     display: (v) => `${formatPace(v)}/mi`,
-    invert: true, // faster (lower number) = higher on chart
+    short: (v) => formatPace(v),
   },
   {
     key: 'heartRate',
@@ -48,6 +49,7 @@ const METRICS = [
     color: '#7dd3fc',
     getValue: (log) => log?.heartRate ?? null,
     display: (v) => `${v} bpm`,
+    short: (v) => String(v),
   },
   {
     key: 'calories',
@@ -55,6 +57,7 @@ const METRICS = [
     color: '#fdba74',
     getValue: (log) => log?.activeCalories ?? null,
     display: (v) => `${v} cal`,
+    short: (v) => String(v),
   },
 ];
 
@@ -103,27 +106,50 @@ function buildPath(points, metric, top, height) {
 // ── Mini chart (inside the dark card) ────────────────────────────────────────
 
 function MiniChart({ week, walkLogsByDate, activeMetrics }) {
+  // Collect all active metric points to detect y-collisions for label placement
+  const TOP = 8; const H = 24; // tighter range, leaving room for labels top+bottom
+
   return (
-    <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="none">
+    <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       {METRICS.map((metric) => {
         if (!activeMetrics[metric.key]) return null;
         const points = buildPoints(week, walkLogsByDate, metric);
         if (points.length === 0) return null;
-        const d = buildPath(points, metric, 4, 32);
-        const dots = points.filter((p) => p.norm != null);
+        const d = buildPath(points, metric, TOP, H);
+        const withData = points.filter((p) => p.norm != null);
         return (
           <g key={metric.key}>
-            {d && <path d={d} stroke={metric.color} strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />}
-            {dots.map((p) => (
-              <circle
-                key={p.i}
-                cx={chartX(p.i).toFixed(2)}
-                cy={chartY(p.norm, metric.invert, 4, 32).toFixed(2)}
-                r="2"
-                fill={metric.color}
+            {d && (
+              <path
+                d={d}
+                stroke={metric.color}
+                strokeWidth="1.2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 opacity="0.9"
               />
-            ))}
+            )}
+            {withData.map((p) => {
+              const x = chartX(p.i);
+              const y = chartY(p.norm, metric.invert, TOP, H);
+              // Label above line if point is in lower half, below if upper half
+              const labelY = y > TOP + H / 2 ? y - 3.5 : y + 6;
+              return (
+                <text
+                  key={p.i}
+                  x={x.toFixed(2)}
+                  y={labelY.toFixed(2)}
+                  textAnchor="middle"
+                  fontSize="3.5"
+                  fill={metric.color}
+                  fontFamily="monospace"
+                  opacity="0.85"
+                >
+                  {metric.short(p.value)}
+                </text>
+              );
+            })}
           </g>
         );
       })}
@@ -168,15 +194,13 @@ function DetailModal({ week, walkLogsByDate, metric, onClose }) {
               const d = buildPath(points, metric, TOP, H);
               return d ? <path d={d} stroke={metric.color} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /> : null;
             })()}
-            {/* Dots + value labels */}
+            {/* Value labels at each point (no dots) */}
             {withData.map((p) => {
               const x = chartX(p.i);
               const y = chartY(p.norm, metric.invert, TOP, H);
-              const labelY = y < TOP + 12 ? y + 7 : y - 4;
-              const raw = metric.key === 'pace' ? formatPace(p.value) : String(p.value);
+              const labelY = y < TOP + H / 2 ? y + 8 : y - 5;
               return (
                 <g key={p.i}>
-                  <circle cx={x.toFixed(2)} cy={y.toFixed(2)} r="2.5" fill={metric.color} />
                   <text
                     x={x.toFixed(2)}
                     y={labelY.toFixed(2)}
@@ -186,7 +210,7 @@ function DetailModal({ week, walkLogsByDate, metric, onClose }) {
                     fontFamily="monospace"
                     opacity="0.9"
                   >
-                    {raw}
+                    {metric.short(p.value)}
                   </text>
                 </g>
               );
