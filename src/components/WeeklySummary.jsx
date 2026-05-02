@@ -240,6 +240,7 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
 
         {/* Stats + pills */}
         <div className="flex items-end gap-8 mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-8">
           <div>
             {totalLogged > 0 ? (
               <>
@@ -257,6 +258,7 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
             <p className="font-display text-4xl font-light leading-none">{loggedDays > 0 ? loggedDays : walkDays}<span className="text-xl text-cream/50 italic ml-1.5">/ 7</span></p>
             <p className="font-mono text-[9px] uppercase tracking-widest text-cream/50 mt-1.5">{loggedDays > 0 ? 'Logged' : 'Walk Days'}</p>
           </div>
+          </div>{/* end stacked stats wrapper */}
           {hasLogs && (
             <div className="ml-auto flex flex-wrap gap-1.5 justify-end">
               {METRICS.map(m => (
