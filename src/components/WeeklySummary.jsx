@@ -108,7 +108,7 @@ function DetailModal({ week, walkLogsByDate, metric, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
       <div className="absolute inset-0 bg-ink/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-ink border border-cream/10 rounded-3xl p-6 w-full max-w-xs mx-auto z-10 ink-shadow-lg animate-fade-up">
+      <div className="relative bg-ink border border-cream/10 rounded-3xl p-6 w-full max-w-sm mx-auto z-10 ink-shadow-lg animate-fade-up">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -201,9 +201,10 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
   const loggedDays = week.filter(d => walkLogsByDate?.[isoDate(d)]).length;
   const hasLogs = loggedDays > 0;
 
-  // Primary metric for y-axis: first active metric
-  const primaryMetric = METRICS.find(m => activeMetrics[m.key]) ?? METRICS[0];
-  const primaryPoints = hasLogs ? buildPoints(week, walkLogsByDate, primaryMetric) : [];
+  // Primary metric for y-axis: first active metric (null if all toggled off)
+  const anyActive = METRICS.some(m => activeMetrics[m.key]);
+  const primaryMetric = anyActive ? (METRICS.find(m => activeMetrics[m.key]) ?? METRICS[0]) : null;
+  const primaryPoints = hasLogs && primaryMetric ? buildPoints(week, walkLogsByDate, primaryMetric) : [];
   const withData = primaryPoints.filter(p => p.norm != null);
   const yMax = withData[0]?.max;
   const yMin = withData[0]?.min;
@@ -281,12 +282,12 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
           <div className="flex gap-0 mb-1" style={{ height: '96px' }}>
             {/* Y-axis — HTML text, no stretching */}
             <div className="w-9 shrink-0 flex flex-col justify-between pb-1">
-              {yMax != null && (
+              {primaryMetric && yMax != null && (
                 <span className="font-mono text-[8px] text-right pr-2 leading-none" style={{ color: primaryMetric.color }}>
                   {primaryMetric.invert ? primaryMetric.short(yMin) : primaryMetric.short(yMax)}
                 </span>
               )}
-              {yMin != null && (
+              {primaryMetric && yMin != null && (
                 <span className="font-mono text-[8px] text-right pr-2 leading-none" style={{ color: primaryMetric.color }}>
                   {primaryMetric.invert ? primaryMetric.short(yMax) : primaryMetric.short(yMin)}
                 </span>
