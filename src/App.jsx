@@ -5,7 +5,7 @@ import LiftCard from './components/LiftCard.jsx';
 import WeeklySummary from './components/WeeklySummary.jsx';
 import LogWalk from './components/LogWalk.jsx';
 import WalkDetailModal from './components/WalkDetailModal.jsx';
-import { liftingPlan } from './data/plan.js';
+import { liftingPlan, isoDate } from './data/plan.js';
 import { getWalkLogs } from './data/walkLogs.js';
 
 export default function App() {
@@ -57,7 +57,11 @@ export default function App() {
 
       <main className="max-w-6xl mx-auto px-6 pb-16 space-y-10">
         {/* Today's walk - hero */}
-        <TodayCard selectedDate={selectedDate} />
+        <TodayCard
+          selectedDate={selectedDate}
+          walkLog={walkLogsByDate[isoDate(selectedDate)]}
+          onLogClick={setSelectedLog}
+        />
 
         {/* Weekly summary — now shows actual vs planned */}
         <WeeklySummary

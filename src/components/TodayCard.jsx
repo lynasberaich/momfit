@@ -1,6 +1,13 @@
 import { walkingPlan, isoDate } from '../data/plan.js';
 
-export default function TodayCard({ selectedDate }) {
+function formatDuration(mins) {
+  if (!mins) return null;
+  const h = Math.floor(mins / 60);
+  const m = Math.round(mins % 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+export default function TodayCard({ selectedDate, walkLog, onLogClick }) {
   const key = isoDate(selectedDate);
   const entry = walkingPlan[key];
 
@@ -9,7 +16,54 @@ export default function TodayCard({ selectedDate }) {
     month: 'long', day: 'numeric', year: 'numeric'
   });
 
-  // States: rest day, walk day, off-plan day
+  // Logged stats block — shown whenever there's a log entry for this day
+  const loggedBlock = walkLog ? (
+    <button
+      onClick={() => onLogClick?.(walkLog)}
+      className="w-full text-left mt-6 group"
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-2 h-2 rounded-full bg-sage-500" />
+        <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-sage-600">
+          Logged · tap for details
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-baseline gap-1.5 bg-sage-50 border border-sage-200 rounded-2xl px-4 py-2.5 group-hover:bg-sage-100 transition-colors">
+          <span className="font-display text-3xl font-light text-sage-700 leading-none">
+            {walkLog.distanceMiles?.toFixed(1) ?? '—'}
+          </span>
+          <span className="font-display italic text-sage-600 text-sm">mi actual</span>
+        </div>
+        {walkLog.durationMinutes && (
+          <div className="flex flex-col justify-center bg-ink/5 border border-ink/10 rounded-2xl px-4 py-2.5">
+            <span className="font-mono text-xs text-ink/40 uppercase tracking-widest leading-none mb-0.5">Duration</span>
+            <span className="font-display text-lg text-ink/80">{formatDuration(walkLog.durationMinutes)}</span>
+          </div>
+        )}
+        {walkLog.averagePaceMinPerMile && (
+          <div className="flex flex-col justify-center bg-ink/5 border border-ink/10 rounded-2xl px-4 py-2.5">
+            <span className="font-mono text-xs text-ink/40 uppercase tracking-widest leading-none mb-0.5">Pace</span>
+            <span className="font-display text-lg text-ink/80">{walkLog.averagePaceMinPerMile}/mi</span>
+          </div>
+        )}
+        {walkLog.heartRate && (
+          <div className="flex flex-col justify-center bg-ink/5 border border-ink/10 rounded-2xl px-4 py-2.5">
+            <span className="font-mono text-xs text-ink/40 uppercase tracking-widest leading-none mb-0.5">HR</span>
+            <span className="font-display text-lg text-ink/80">{walkLog.heartRate} <span className="text-sm text-ink/40">bpm</span></span>
+          </div>
+        )}
+        {walkLog.activeCalories && (
+          <div className="flex flex-col justify-center bg-ink/5 border border-ink/10 rounded-2xl px-4 py-2.5">
+            <span className="font-mono text-xs text-ink/40 uppercase tracking-widest leading-none mb-0.5">Cal</span>
+            <span className="font-display text-lg text-ink/80">{walkLog.activeCalories}</span>
+          </div>
+        )}
+      </div>
+    </button>
+  ) : null;
+
+  // Plan body
   let body;
   if (!entry) {
     body = (
@@ -21,6 +75,7 @@ export default function TodayCard({ selectedDate }) {
           Nothing scheduled — the plan runs May 3 → June 30, 2026.
           Use the calendar below to peek at any day.
         </p>
+        {loggedBlock}
       </div>
     );
   } else if (entry.rest) {
@@ -33,18 +88,23 @@ export default function TodayCard({ selectedDate }) {
           Recovery is part of the plan. Stretch, hydrate,
           do whatever feels good.
         </p>
+        {loggedBlock}
       </div>
     );
   } else {
     body = (
       <div className="space-y-4">
-        <div className="flex items-baseline gap-3">
-          <span className="font-display text-7xl md:text-9xl font-light text-sage-700 leading-none">
-            {entry.miles}
-          </span>
-          <span className="font-display text-3xl md:text-4xl italic text-sage-600">
-            {entry.miles === 1 ? 'mile' : 'miles'}
-          </span>
+        {/* Planned distance */}
+        <div>
+          <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-ink/40 mb-1">Goal</p>
+          <div className="flex items-baseline gap-3">
+            <span className="font-display text-7xl md:text-9xl font-light text-sage-700 leading-none">
+              {entry.miles}
+            </span>
+            <span className="font-display text-3xl md:text-4xl italic text-sage-600">
+              {entry.miles === 1 ? 'mile' : 'miles'}
+            </span>
+          </div>
         </div>
         {entry.intervals && (
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-butter/60 border border-ink/10 rounded-full">
@@ -54,9 +114,12 @@ export default function TodayCard({ selectedDate }) {
             </span>
           </div>
         )}
-        <p className="text-ink/60 max-w-md">
-          Lace up. Take it at a pace that feels good.
-        </p>
+        {!walkLog && (
+          <p className="text-ink/60 max-w-md">
+            Lace up. Take it at a pace that feels good.
+          </p>
+        )}
+        {loggedBlock}
       </div>
     );
   }
@@ -90,7 +153,7 @@ export default function TodayCard({ selectedDate }) {
         <div className="relative">
           <div className="flex items-center gap-3 mb-6">
             <span className="font-mono text-xs uppercase tracking-[0.25em] text-ink/50">
-              Today
+              {key === isoDate(new Date()) ? 'Today' : selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}
             </span>
             <span className="h-px flex-1 bg-ink/15" />
             <span className="font-mono text-xs uppercase tracking-[0.25em] text-ink/50">
