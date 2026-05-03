@@ -162,7 +162,7 @@ export default function TodayCard({ selectedDate, walkLog, onLogClick }) {
           </div>
 
           <p className="font-display text-2xl md:text-3xl italic text-ink/70 mb-6">
-            Hi, mom. It's <span className="text-sage-700 not-italic font-medium">{dayName}</span>.
+            Hi, Meryem. It's <span className="text-sage-700 not-italic font-medium">{dayName}</span>.
           </p>
 
           {body}
