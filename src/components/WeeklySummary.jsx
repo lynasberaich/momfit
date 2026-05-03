@@ -181,7 +181,7 @@ function DetailModal({ week, walkLogsByDate, metric, onClose }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick }) {
+export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick, onDateChange }) {
   const [activeMetrics, setActiveMetrics] = useState({
     distance: true, pace: true, heartRate: true, calories: true,
   });
@@ -230,12 +230,32 @@ export default function WeeklySummary({ selectedDate, walkLogsByDate, onLogClick
       </svg>
 
       <div className="relative">
-        {/* Header */}
-        <div className="flex items-baseline justify-between mb-5">
+        {/* Header with prev/next navigation */}
+        <div className="flex items-center justify-between mb-5">
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-cream/50">This Week</p>
-          <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-cream/50">
-            {start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} {' → '} {week[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </p>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { const d = new Date(selectedDate); d.setDate(d.getDate() - 7); onDateChange?.(d); }}
+              className="p-1 text-cream/40 hover:text-cream transition-colors"
+              aria-label="Previous week"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-cream/50">
+              {start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} {' → '} {week[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </p>
+            <button
+              onClick={() => { const d = new Date(selectedDate); d.setDate(d.getDate() + 7); onDateChange?.(d); }}
+              className="p-1 text-cream/40 hover:text-cream transition-colors"
+              aria-label="Next week"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none">
+                <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Stats + pills */}

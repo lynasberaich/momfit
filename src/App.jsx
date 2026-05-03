@@ -64,6 +64,7 @@ export default function App() {
           selectedDate={selectedDate}
           walkLogsByDate={walkLogsByDate}
           onLogClick={setSelectedLog}
+          onDateChange={setSelectedDate}
         />
 
         {/* Calendars: May & June */}
