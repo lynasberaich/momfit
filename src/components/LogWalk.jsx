@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { saveWalkLog } from '../data/walkLogs.js';
 
 // Compress image to JPEG at max 1280px on longest side before sending
@@ -104,6 +105,13 @@ export default function LogWalk({ onSaved }) {
       });
       reset();
       onSaved?.();
+      // Celebrate!
+      confetti({
+        particleCount: 140,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#7a9e7e', '#c4b8a0', '#e8c8c0', '#f5e6d0', '#4a6741'],
+      });
     } catch (err) {
       setError(err.message);
       setPhase('confirming');
