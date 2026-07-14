@@ -72,7 +72,7 @@ export default function TodayCard({ selectedDate, walkLog, onLogClick }) {
           A free day.
         </p>
         <p className="text-ink/60 max-w-md">
-          Nothing scheduled — the plan runs May 3 → June 30, 2026.
+          Nothing scheduled — the plan runs May 3 → July 31, 2026.
           Use the calendar below to peek at any day.
         </p>
         {loggedBlock}

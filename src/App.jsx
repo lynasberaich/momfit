@@ -35,7 +35,7 @@ export default function App() {
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-ink/50 mb-3">
-              The Plan · May–June 2026
+              The Plan · May–July 2026
             </p>
             <h1 className="font-display text-5xl md:text-7xl font-light text-ink leading-[0.95] tracking-tight">
               Walk. Lift.
@@ -121,6 +121,15 @@ export default function App() {
               selectedDate={selectedDate}
               onSelect={setSelectedDate}
               label="Month 2"
+              walkLogsByDate={walkLogsByDate}
+              onLogClick={setSelectedLog}
+            />
+            <CalendarMonth
+              year={2026}
+              month={6}
+              selectedDate={selectedDate}
+              onSelect={setSelectedDate}
+              label="Month 3"
               walkLogsByDate={walkLogsByDate}
               onLogClick={setSelectedLog}
             />
